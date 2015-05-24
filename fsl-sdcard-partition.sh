@@ -64,6 +64,7 @@ FILE_UBOOT="u-boot.imx"
 FILE_KERNEL="zImage"
 function file_finux
 {
+    echo "Selected files:" 
     if [ "${imx6s}" -eq "1" ]; then
         FILE_UBOOT="u-boot-imx6s-tinyrex.imx"
         FILE_KERNEL="zImage-imx6s-tinyrex"
@@ -76,6 +77,8 @@ function file_finux
         FILE_UBOOT="u-boot-imx6q-tinyrex.imx"
         FILE_KERNEL="zImage-imx6q-tinyrex"
     fi
+    echo "UBOOT:  ${FILE_UBOOT}" 
+    echo "KERNEL: ${FILE_KERNEL}" 
 }
 
 function partition_linux
@@ -95,7 +98,7 @@ function partition_linux
     PARTITION_OFFSET_FIRST=$(expr ${ROM_SIZE_BOOT} + 0)
     PARTITION_OFFSET_SECOND=$(expr ${PARTITION_OFFSET_FIRST} + ${ROM_SIZE_KERNEL})
 
-sfdisk --force -uM ${node} << EOF
+sfdisk --force -uM ${node} 1>/dev/null 2>/dev/null << EOF
 ${PARTITION_OFFSET_FIRST},${ROM_SIZE_KERNEL},c
 ${PARTITION_OFFSET_SECOND},${ROM_SIZE_SYSTEM},83
 EOF
@@ -104,23 +107,24 @@ EOF
 function format_linux
 {
     echo "Formating partitions..."   
-    mkfs.vfat ${node}${part}1 -nKERNEL
+    mkfs.vfat ${node}${part}1 -nKERNEL 
     mkfs.ext4 ${node}${part}2 -Lsystem
 }
 
 function flash_linux
 {
     echo "Flashing images..."
-    dd if=${FILE_UBOOT} of=${node} bs=1k seek=1   skip=0  oflag=dsync
-    dd if=/dev/zero of=${node}  bs=4k seek=128 count=2 oflag=dsync
+    dd if=${FILE_UBOOT} of=${node} bs=1k seek=1   skip=0  oflag=dsync 2>/dev/null
+    dd if=/dev/zero     of=${node} bs=4k seek=128 count=2 oflag=dsync 2>/dev/null
 
-    mkdir /media/tmp
+    mkdir -p /media/tmp
     mount ${node}${part}1 /media/tmp
-    cp ${FILE_KERNE} imx6s-tinyrex.dtb imx6dl-tinyrex.dtb imx6q-tinyrex.dtb /media/tmp
+    cp imx6s-tinyrex.dtb imx6dl-tinyrex.dtb imx6q-tinyrex.dtb /media/tmp
+    cp ${FILE_KERNEL} /media/tmp/zImage
     umount /media/tmp
 
     mount ${node}${part}2 /media/tmp
-    tar xvjf core-image-minimal-imx6.rootfs.tar.bz2 -C  /media/tmp
+    tar xjf core-image-minimal-imx6.rootfs.tar.bz2 -C  /media/tmp
     umount /media/tmp
 }
 
