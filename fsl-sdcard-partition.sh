@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# sudo ./fsl-sdcard-partition.sh -f /dev/mmcblk0
+# sudo ./fsl-sdcard-partition.sh -s /dev/mmcblk0
 
 # partition size in MB
 ROM_SIZE_BOOT=8
