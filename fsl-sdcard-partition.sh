@@ -62,23 +62,33 @@ fi
 
 FILE_UBOOT="u-boot.imx"
 FILE_KERNEL="zImage"
+FILE_FDT="imx6.dtb"
+FILE_ROOT="core-image-base.tar.bz2"
 function file_finux
 {
     echo "Selected files:" 
     if [ "${imx6s}" -eq "1" ]; then
         FILE_UBOOT="u-boot-imx6s-tinyrex.imx"
-        FILE_KERNEL="zImage-imx6s-tinyrex"
+        FILE_KERNEL="zImage-imx6s-tinyrex.bin"
+        FILE_FDT="zImage-imx6s-tinyrex.dtb"
+        FILE_ROOT="core-image-base-imx6s-tinyrex.tar.bz2"
     fi
     if [ "${imx6dl}" -eq "1" ]; then
         FILE_UBOOT="u-boot-imx6dl-tinyrex.imx"
-        FILE_KERNEL="zImage-imx6dl-tinyrex"
+        FILE_KERNEL="zImage-imx6dl-tinyrex.bin"
+        FILE_FDT="zImage-imx6dl-tinyrex.dtb"
+        FILE_ROOT="core-image-base-imx6dl-tinyrex.tar.bz2"
     fi
     if [ "${imx6q}" -eq "1" ]; then
         FILE_UBOOT="u-boot-imx6q-tinyrex.imx"
-        FILE_KERNEL="zImage-imx6q-tinyrex"
+        FILE_KERNEL="zImage-imx6q-tinyrex.bin"
+        FILE_FDT="zImage-imx6q-tinyrex.dtb"
+        FILE_ROOT="core-image-base-imx6q-tinyrex.tar.bz2"
     fi
-    echo "UBOOT:  ${FILE_UBOOT}" 
-    echo "KERNEL: ${FILE_KERNEL}" 
+    echo "UBOOT  : ${FILE_UBOOT}"
+    echo "KERNEL : ${FILE_KERNEL}"
+    echo "FDT    : ${FILE_FDT}"
+    echo "ROOT   : ${FILE_ROOT}" 
 }
 
 function partition_linux
@@ -119,12 +129,12 @@ function flash_linux
 
     mkdir -p /media/tmp
     mount ${node}${part}1 /media/tmp
-    cp imx6s-tinyrex.dtb imx6dl-tinyrex.dtb imx6q-tinyrex.dtb /media/tmp
-    cp ${FILE_KERNEL} /media/tmp/zImage
+    cp ${FILE_FDT} /media/tmp/${FILE_FDT//zImage-/}
+    cp ${FILE_KERNEL} /media/tmp/${FILE_KERNEL//.bin/}
     umount /media/tmp
 
     mount ${node}${part}2 /media/tmp
-    tar xjf core-image-minimal-imx6.rootfs.tar.bz2 -C  /media/tmp
+    tar xjf ${FILE_ROOT} -C  /media/tmp
     umount /media/tmp
 }
 
