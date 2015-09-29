@@ -11,7 +11,10 @@ help() {
 
 bn=`basename $0`
 cat << EOF
-usage $bn <option> device_node
+Usage
+    $bn <option> device_node
+Example
+    sudo ./fsl-sdcard-partition.sh -q /dev/mmcblk0
 
 options:
   -h				displays this help message
@@ -130,7 +133,7 @@ function flash_linux
     mkdir -p /media/tmp
     mount ${node}${part}1 /media/tmp
     cp ${FILE_FDT} /media/tmp/${FILE_FDT//zImage-/}
-    cp ${FILE_KERNEL} /media/tmp/${FILE_KERNEL//.bin/}
+    cp ${FILE_KERNEL} /media/tmp/zImage
     umount /media/tmp
 
     mount ${node}${part}2 /media/tmp
